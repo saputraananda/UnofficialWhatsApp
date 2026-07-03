@@ -1,0 +1,34 @@
+name: Deploy WA Gateway
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ubuntu
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/UnofficialWhatsAppAlora
+
+            echo "=== Pull Latest Code ==="
+            git pull origin main
+
+            echo "=== Install Dependencies ==="
+            npm install
+
+            echo "=== Restart PM2 ==="
+            pm2 restart wa-gateway-alora
+
+            echo "=== Save PM2 ==="
+            pm2 save
+
+            echo "=== Deploy Success ==="
