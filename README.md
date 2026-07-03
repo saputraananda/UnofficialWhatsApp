@@ -1,15 +1,23 @@
 # Unofficial WhatsApp Multi-Session Gateway
 
-Aplikasi WhatsApp Gateway multi-sesi tidak resmi (unofficial) berbasis Node.js yang menggunakan library **@whiskeysockets/baileys** dan **Express.js**. Proyek ini dirancang untuk mempermudah integrasi pengiriman pesan WhatsApp otomatis dan pengelolaan sesi untuk bisnis **Alora** dan **Cleanox**.
+Aplikasi WhatsApp Gateway multi-sesi tidak resmi (unofficial) berbasis Node.js yang menggunakan library **@whiskeysockets/baileys** dan **Express.js**. Proyek ini dirancang untuk mempermudah integrasi pengiriman pesan WhatsApp otomatis dan pengelolaan sesi untuk bisnis **Alora Group** (Alora, Cleanox, dan jaringan outlet Waschen).
 
-Aplikasi ini dilengkapi dengan dashboard berbasis web yang responsif dan modern untuk memudahkan inisialisasi sesi, pemindaian QR Code, pemantauan status koneksi secara real-time, serta pengiriman pesan uji coba.
+Aplikasi ini dilengkapi dengan dashboard berbasis web yang responsif, modern, dan dinamis untuk memudahkan inisialisasi sesi, pemindaian QR Code dengan scanline animation, pemantauan status koneksi secara real-time, serta pengiriman pesan uji coba.
 
 ---
 
 ## Fitur Utama
 
-- **Multi-Session Support**: Mendukung dua sesi bawaan yang terpisah: `alora` (Alora Business) dan `cleanox` (Cleanox Business).
-- **Web UI Dashboard**: Antarmuka dashboard modern dengan visualisasi status sesi, pemindai QR Code dinamis, detail akun terhubung, dan form uji coba pengiriman pesan langsung dari browser.
+- **Multi-Session Support**: Mendukung delapan sesi bawaan yang berjalan paralel secara mandiri:
+  1. `alora` (Alora Business)
+  2. `cleanox` (Cleanox Business)
+  3. `waschen_utama` (Waschen Utama)
+  4. `waschen_legenda` (Waschen Legenda)
+  5. `waschen_citra` (Waschen Citra)
+  6. `waschen_canadian` (Waschen Canadian)
+  7. `waschen_sentra_eropa` (Waschen Sentra Eropa)
+  8. `waschen_raffles` (Waschen Raffles)
+- **Dynamic Web UI Dashboard**: Antarmuka dashboard modern menggunakan desain Cyber-Glassmorphism dengan visualisasi status sesi, pemindai QR Code dengan efek laser scanline, detail nomor dan nama akun terhubung, serta form uji coba pengiriman pesan langsung dari browser. Elemen kartu di-render secara dinamis dari API backend.
 - **RESTful API Endpoint**: Endpoint API untuk mengontrol status sesi (inisialisasi/logout) dan mengirim pesan WhatsApp secara terprogram.
 - **Auto-Formatting Phone Number**: Memformat nomor telepon otomatis (misalnya mengonversi format lokal `08xxx` menjadi format internasional `628xxx@s.whatsapp.net`).
 - **Persistent Session State**: Menyimpan kredensial otentikasi sesi di folder `sessions/` sehingga koneksi tetap bertahan meskipun server dijalankan ulang (restart).
@@ -24,12 +32,14 @@ UnofficialWaAlora/
 ├── agent/
 │   └── Self-Hosted-VPS.md    # Panduan lengkap deployment ke VPS Ubuntu
 ├── public/                   # Asset front-end Dashboard
-│   ├── app.js                # Logika front-end (fetch API & rendering UI)
-│   ├── index.html            # Desain dashboard HTML
+│   ├── app.js                # Logika front-end (fetch API & rendering dinamis)
+│   ├── index.html            # Desain dashboard HTML (Glassmorphism & animations)
 │   └── style.css             # Styling UI Dashboard (Glassmorphism & animations)
 ├── sessions/                 # Folder penyimpanan sesi/auth token Baileys (auto-generated)
 │   ├── alora/
-│   └── cleanox/
+│   ├── cleanox/
+│   ├── waschen_utama/
+│   └── ... (sesi Waschen lainnya)
 ├── nodemon.json              # Konfigurasi Nodemon untuk pengembangan
 ├── package.json              # Dependensi & script perintah NPM
 ├── server.js                 # Entry point Express.js Server & API routing
@@ -43,6 +53,7 @@ UnofficialWaAlora/
 Sebelum menjalankan proyek ini, pastikan Anda telah memasang:
 - **Node.js** (Versi 20 LTS ke atas direkomendasikan)
 - **NPM** (bawaan dari instalasi Node.js)
+- **RAM Minimum**: Disarankan memiliki RAM bebas minimal 1GB - 2GB untuk menjalankan 8 sesi secara bersamaan dengan lancar.
 
 ---
 
@@ -81,10 +92,10 @@ Setelah server berjalan, buka browser dan akses Dashboard di:
 
 ## Panduan Penggunaan Dashboard
 
-1. **Inisialisasi Sesi**: Klik tombol **Initialize Session** pada sesi yang ingin diaktifkan (`Alora Business` atau `Cleanox Business`).
+1. **Inisialisasi Sesi**: Klik tombol **Inisialisasi Sesi** pada sesi yang ingin diaktifkan (misalnya `Waschen Utama`).
 2. **Scan QR Code**: Tunggu beberapa detik sampai QR Code muncul di dashboard, lalu buka aplikasi WhatsApp di ponsel Anda -> **Linked Devices (Perangkat Tertaut)** -> **Link a Device (Tautkan Perangkat)**, lalu scan QR Code tersebut.
-3. **Kirim Uji Coba**: Setelah berhasil terhubung, bagian **Send Test Message** akan muncul di bawah kartu sesi. Anda dapat memasukkan nomor tujuan (contoh: `628123456789`) dan isi pesan untuk mencoba pengiriman langsung.
-4. **Disconnect**: Klik tombol **Disconnect Session** jika ingin mengeluarkan WhatsApp dari gateway.
+3. **Kirim Uji Coba**: Setelah berhasil terhubung, bagian **Kirim Uji Coba** akan muncul di bawah kartu sesi. Anda dapat memasukkan nomor tujuan (contoh: `628123456789`) dan isi pesan untuk mencoba pengiriman langsung.
+4. **Putuskan Sesi**: Klik tombol **Putuskan Sesi** jika ingin mengeluarkan WhatsApp dari gateway secara permanen.
 
 ---
 
@@ -93,7 +104,7 @@ Setelah server berjalan, buka browser dan akses Dashboard di:
 Semua request REST API menggunakan format JSON pada request body dan mengembalikan response JSON.
 
 ### 1. Mendapatkan Status Semua Sesi
-Mendapatkan status koneksi, data URL QR Code (jika ada), dan info akun yang terhubung untuk seluruh sesi.
+Mendapatkan status koneksi, data URL QR Code (jika ada), info akun terhubung, serta nama tampilan dan ikon untuk seluruh sesi.
 
 - **Endpoint**: `GET /api/sessions`
 - **Response Sukses (200)**:
@@ -101,19 +112,24 @@ Mendapatkan status koneksi, data URL QR Code (jika ada), dan info akun yang terh
   {
     "success": true,
     "sessions": {
-      "alora": {
+      "waschen_utama": {
         "status": "connected",
         "qrImage": null,
         "info": {
           "id": "628123456789@s.whatsapp.net",
-          "name": "Alora Business"
-        }
+          "name": "Waschen Utama"
+        },
+        "displayName": "Waschen Utama",
+        "icon": "fa-solid fa-soap"
       },
-      "cleanox": {
+      "alora": {
         "status": "disconnected",
         "qrImage": null,
-        "info": null
+        "info": null,
+        "displayName": "Alora Business",
+        "icon": "fa-solid fa-building"
       }
+      // ... sesi lainnya
     }
   }
   ```
@@ -121,9 +137,9 @@ Mendapatkan status koneksi, data URL QR Code (jika ada), dan info akun yang terh
 ---
 
 ### 2. Mendapatkan Status Satu Sesi
-Mendapatkan status koneksi detail untuk satu sesi tertentu (`alora` atau `cleanox`).
+Mendapatkan status koneksi detail untuk satu sesi tertentu.
 
-- **Endpoint**: `GET /api/sessions/:id` (Ganti `:id` dengan `alora` atau `cleanox`)
+- **Endpoint**: `GET /api/sessions/:id` (Contoh: `:id` diganti `waschen_utama`)
 - **Response Sukses (200)**:
   ```json
   {
@@ -131,7 +147,9 @@ Mendapatkan status koneksi detail untuk satu sesi tertentu (`alora` atau `cleano
     "session": {
       "status": "qr",
       "qrImage": "data:image/png;base64,...",
-      "info": null
+      "info": null,
+      "displayName": "Waschen Utama",
+      "icon": "fa-solid fa-soap"
     }
   }
   ```
@@ -146,7 +164,7 @@ Memulai proses koneksi dan pembuatan QR Code untuk sesi tertentu.
   ```json
   {
     "success": true,
-    "message": "Session alora initialization triggered"
+    "message": "Session waschen_utama initialization triggered"
   }
   ```
 
@@ -160,7 +178,7 @@ Memutuskan koneksi WhatsApp dan menghapus token kredensial sesi dari server seca
   ```json
   {
     "success": true,
-    "message": "Session alora logged out successfully"
+    "message": "Session waschen_utama logged out successfully"
   }
   ```
 
@@ -174,9 +192,9 @@ Mengirimkan pesan teks ke nomor tujuan dengan menentukan sesi di dalam request b
 - **Request Body**:
   ```json
   {
-    "session": "alora",
+    "session": "waschen_utama",
     "to": "628123456789",
-    "message": "Halo, ini adalah pesan otomatis dari Gateway Alora!"
+    "message": "Halo, ini adalah pesan otomatis dari Gateway Waschen Utama!"
   }
   ```
 - **Response Sukses (200)**:
@@ -198,7 +216,7 @@ Mengirimkan pesan teks ke nomor tujuan langsung melalui endpoint sesi yang diten
   ```json
   {
     "to": "628123456789",
-    "message": "Halo, ini adalah pesan langsung melalui endpoint Cleanox!"
+    "message": "Halo, ini pesan langsung via endpoint Waschen Utama!"
   }
   ```
 - **Response Sukses (200)**:

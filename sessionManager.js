@@ -5,7 +5,17 @@ const path = require('path');
 const fs = require('fs');
 const QRCode = require('qrcode');
 
-const sessionNames = ['alora', 'cleanox'];
+const sessionConfig = {
+    'alora': { displayName: 'Alora Business', icon: 'fa-solid fa-building' },
+    'cleanox': { displayName: 'Cleanox Business', icon: 'fa-solid fa-spray-can-sparkles' },
+    'waschen_utama': { displayName: 'Waschen Utama', icon: 'fa-solid fa-soap' },
+    'waschen_legenda': { displayName: 'Waschen Legenda', icon: 'fa-solid fa-socks' },
+    'waschen_citra': { displayName: 'Waschen Citra', icon: 'fa-solid fa-shirt' },
+    'waschen_canadian': { displayName: 'Waschen Canadian', icon: 'fa-solid fa-snowflake' },
+    'waschen_sentra_eropa': { displayName: 'Waschen Sentra Eropa', icon: 'fa-solid fa-globe' },
+    'waschen_raffles': { displayName: 'Waschen Raffles', icon: 'fa-solid fa-crown' }
+};
+const sessionNames = Object.keys(sessionConfig);
 const sessions = {};
 
 // Initialize status fields for the sessions
@@ -178,7 +188,9 @@ function getAllSessionsStatus() {
         response[name] = {
             status: sessions[name].status,
             qrImage: sessions[name].qrImage,
-            info: sessions[name].info
+            info: sessions[name].info,
+            displayName: sessionConfig[name].displayName,
+            icon: sessionConfig[name].icon
         };
     }
     return response;
@@ -192,7 +204,9 @@ function getSessionStatus(sessionId) {
     return {
         status: sessions[sessionId].status,
         qrImage: sessions[sessionId].qrImage,
-        info: sessions[sessionId].info
+        info: sessions[sessionId].info,
+        displayName: sessionConfig[sessionId].displayName,
+        icon: sessionConfig[sessionId].icon
     };
 }
 
