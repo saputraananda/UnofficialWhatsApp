@@ -4,15 +4,102 @@ let pollInterval;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
-    fetchSessionStatus();
-    // Poll statuses setiap 2.5 detik
-    pollInterval = setInterval(fetchSessionStatus, 2500);
+    const storedPassword = localStorage.getItem('gate_password');
+    const loginOverlay = document.getElementById('login-overlay');
+    const loginForm = document.getElementById('login-form');
+    const passwordInput = document.getElementById('password-input');
+    const loginError = document.getElementById('login-error');
+
+    if (storedPassword) {
+        // Verifikasi password lama ke API
+        verifyAndStart(storedPassword);
+    } else {
+        loginOverlay.classList.remove('hidden');
+    }
+
+    // Handle login form submit
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const password = passwordInput.value;
+        const loginBtn = loginForm.querySelector('button[type="submit"]');
+        
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memverifikasi...';
+        loginError.classList.add('hidden');
+
+        const success = await verifyPassword(password);
+        
+        if (success) {
+            localStorage.setItem('gate_password', password);
+            loginOverlay.classList.add('hidden');
+            fetchSessionStatus();
+            pollInterval = setInterval(fetchSessionStatus, 2500);
+        } else {
+            loginError.classList.remove('hidden');
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Masuk';
+            passwordInput.value = '';
+        }
+    });
 });
+
+function getStoredPassword() {
+    return localStorage.getItem('gate_password') || '';
+}
+
+// Hapus password jika salah/tidak sah, tampilkan login screen kembali
+function handleUnauthorized() {
+    localStorage.removeItem('gate_password');
+    if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+    }
+    const loginOverlay = document.getElementById('login-overlay');
+    if (loginOverlay) {
+        loginOverlay.classList.remove('hidden');
+    }
+}
+
+// Verifikasi password yang tersimpan
+async function verifyAndStart(password) {
+    const success = await verifyPassword(password);
+    const loginOverlay = document.getElementById('login-overlay');
+    
+    if (success) {
+        if (loginOverlay) loginOverlay.classList.add('hidden');
+        fetchSessionStatus();
+        pollInterval = setInterval(fetchSessionStatus, 2500);
+    } else {
+        localStorage.removeItem('gate_password');
+        if (loginOverlay) loginOverlay.classList.remove('hidden');
+    }
+}
+
+// Panggil API status untuk verifikasi password
+async function verifyPassword(password) {
+    try {
+        const response = await fetch('/api/sessions', {
+            headers: { 'X-Api-Key': password }
+        });
+        return response.status === 200;
+    } catch (err) {
+        console.error('Auth verification network error:', err);
+        return false;
+    }
+}
 
 // Fetch status dari API
 async function fetchSessionStatus() {
     try {
-        const response = await fetch('/api/sessions');
+        const response = await fetch('/api/sessions', {
+            headers: { 'X-Api-Key': getStoredPassword() }
+        });
+        
+        if (response.status === 401) {
+            handleUnauthorized();
+            return;
+        }
+
         const data = await response.json();
         
         if (data.success) {
@@ -202,8 +289,15 @@ async function initiateSession(sessionId) {
 
     try {
         const response = await fetch(`/api/sessions/${sessionId}/init`, {
-            method: 'POST'
+            method: 'POST',
+            headers: { 'X-Api-Key': getStoredPassword() }
         });
+
+        if (response.status === 401) {
+            handleUnauthorized();
+            return;
+        }
+
         const data = await response.json();
         if (data.success) {
             console.log(`Session ${sessionId} initialized successfully`);
@@ -243,8 +337,15 @@ async function logoutSession(sessionId) {
 
     try {
         const response = await fetch(`/api/sessions/${sessionId}/logout`, {
-            method: 'POST'
+            method: 'POST',
+            headers: { 'X-Api-Key': getStoredPassword() }
         });
+
+        if (response.status === 401) {
+            handleUnauthorized();
+            return;
+        }
+
         const data = await response.json();
         if (data.success) {
             console.log(`Session ${sessionId} logged out`);
@@ -293,10 +394,16 @@ async function handleSend(event, sessionId) {
         const response = await fetch(`/api/sessions/${sessionId}/send`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Api-Key': getStoredPassword()
             },
             body: JSON.stringify({ to, message })
         });
+
+        if (response.status === 401) {
+            handleUnauthorized();
+            return;
+        }
 
         const data = await response.json();
         if (data.success) {

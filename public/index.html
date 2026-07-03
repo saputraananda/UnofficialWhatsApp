@@ -11,9 +11,29 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="background-grid"></div>
-    <div class="glow-sphere sphere-1"></div>
-    <div class="glow-sphere sphere-2"></div>
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fa-brands fa-whatsapp text-gradient"></i>
+                <h2>Alora Gateway Login</h2>
+                <p>Masukkan password untuk mengakses konsol gateway</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="password-input">Password:</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="password-input" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-full">
+                    <i class="fa-solid fa-right-to-bracket"></i> Masuk
+                </button>
+                <div id="login-error" class="send-feedback error hidden">Password salah!</div>
+            </form>
+        </div>
+    </div>
 
     <div class="container">
         <header>

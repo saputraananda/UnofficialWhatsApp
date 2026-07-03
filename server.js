@@ -9,6 +9,39 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Authentication Middleware to protect API routes
+const GATEWAY_PASSWORD = process.env.GATEWAY_PASSWORD || 'aloranumber1';
+
+const authMiddleware = (req, res, next) => {
+    let key = req.headers['x-api-key'];
+    
+    if (!key && req.headers['authorization']) {
+        const parts = req.headers['authorization'].split(' ');
+        if (parts.length === 2 && (parts[0].toLowerCase() === 'bearer' || parts[0].toLowerCase() === 'basic')) {
+            key = parts[1];
+        }
+    }
+    
+    if (!key) {
+        key = req.query.key || req.query.apiKey;
+    }
+    
+    if (!key && req.body) {
+        key = req.body.apiKey || req.body.password;
+    }
+
+    if (key === GATEWAY_PASSWORD) {
+        return next();
+    }
+
+    return res.status(401).json({ 
+        success: false, 
+        error: 'Unauthorized. Invalid or missing API Key/Password.' 
+    });
+};
+
+app.use('/api', authMiddleware);
+
 // API: Get all sessions status
 app.get('/api/sessions', (req, res) => {
     try {
