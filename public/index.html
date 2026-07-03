@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Unofficial Gateway Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-grid"></div>
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fa-brands fa-whatsapp text-gradient"></i>
+                <h1>WhatsApp <span>Unofficial API</span></h1>
+            </div>
+            <p class="subtitle">Multi-Session Gateway Console for business automation (alora & cleanox)</p>
+        </header>
+
+        <main class="dashboard-grid">
+            <!-- ALORA SESSION -->
+            <section class="session-card" id="session-alora" data-session="alora">
+                <div class="card-header">
+                    <div class="session-title">
+                        <i class="fa-solid fa-building"></i>
+                        <h2>Alora Business</h2>
+                    </div>
+                    <span class="status-badge status-disconnected">
+                        <span class="pulse"></span>
+                        <span class="status-text">Disconnected</span>
+                    </span>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Dynamic States -->
+                    <div class="state-container state-disconnected">
+                        <div class="icon-circle"><i class="fa-solid fa-plug-distanced"></i></div>
+                        <p class="state-desc">Session is currently offline. Trigger initialization to generate a login QR code.</p>
+                        <button class="btn btn-primary btn-init" onclick="initiateSession('alora')">
+                            <i class="fa-solid fa-power-off"></i> Initialize Session
+                        </button>
+                    </div>
+
+                    <div class="state-container state-connecting hidden">
+                        <div class="spinner"></div>
+                        <p class="state-desc">Connecting to WhatsApp servers. Please wait...</p>
+                    </div>
+
+                    <div class="state-container state-qr hidden">
+                        <p class="state-desc font-semibold">Scan QR Code from WhatsApp (Linked Devices):</p>
+                        <div class="qr-wrapper">
+                            <img src="" alt="WhatsApp QR Code" class="qr-image">
+                            <div class="qr-overlay hidden"><i class="fa-solid fa-rotate-right"></i> Refreshing</div>
+                        </div>
+                        <p class="qr-hint"><i class="fa-solid fa-info-circle"></i> Go to WhatsApp Settings > Linked Devices > Link a Device</p>
+                    </div>
+
+                    <div class="state-container state-connected hidden">
+                        <div class="success-circle"><i class="fa-solid fa-check"></i></div>
+                        <div class="user-info">
+                            <h3 class="user-name">WhatsApp Account</h3>
+                            <p class="user-phone">Unknown Number</p>
+                        </div>
+                        <button class="btn btn-danger btn-logout" onclick="logoutSession('alora')">
+                            <i class="fa-solid fa-right-from-bracket"></i> Disconnect Session
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-footer border-t hidden" id="test-form-alora">
+                    <h3>Send Test Message</h3>
+                    <form onsubmit="handleSend(event, 'alora')" class="test-send-form">
+                        <div class="form-group">
+                            <label for="to-alora">Recipient Number (with country code):</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-phone"></i>
+                                <input type="text" id="to-alora" placeholder="628xxxxxxxxxx" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="msg-alora">Message Content:</label>
+                            <textarea id="msg-alora" rows="2" placeholder="Tulis pesan uji coba di sini..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success w-full btn-send">
+                            <i class="fa-solid fa-paper-plane"></i> Send Message
+                        </button>
+                        <div class="send-feedback hidden"></div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- CLEANOX SESSION -->
+            <section class="session-card" id="session-cleanox" data-session="cleanox">
+                <div class="card-header">
+                    <div class="session-title">
+                        <i class="fa-solid fa-spray-can-sparkles"></i>
+                        <h2>Cleanox Business</h2>
+                    </div>
+                    <span class="status-badge status-disconnected">
+                        <span class="pulse"></span>
+                        <span class="status-text">Disconnected</span>
+                    </span>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Dynamic States -->
+                    <div class="state-container state-disconnected">
+                        <div class="icon-circle"><i class="fa-solid fa-plug-distanced"></i></div>
+                        <p class="state-desc">Session is currently offline. Trigger initialization to generate a login QR code.</p>
+                        <button class="btn btn-primary btn-init" onclick="initiateSession('cleanox')">
+                            <i class="fa-solid fa-power-off"></i> Initialize Session
+                        </button>
+                    </div>
+
+                    <div class="state-container state-connecting hidden">
+                        <div class="spinner"></div>
+                        <p class="state-desc">Connecting to WhatsApp servers. Please wait...</p>
+                    </div>
+
+                    <div class="state-container state-qr hidden">
+                        <p class="state-desc font-semibold">Scan QR Code from WhatsApp (Linked Devices):</p>
+                        <div class="qr-wrapper">
+                            <img src="" alt="WhatsApp QR Code" class="qr-image">
+                            <div class="qr-overlay hidden"><i class="fa-solid fa-rotate-right"></i> Refreshing</div>
+                        </div>
+                        <p class="qr-hint"><i class="fa-solid fa-info-circle"></i> Go to WhatsApp Settings > Linked Devices > Link a Device</p>
+                    </div>
+
+                    <div class="state-container state-connected hidden">
+                        <div class="success-circle"><i class="fa-solid fa-check"></i></div>
+                        <div class="user-info">
+                            <h3 class="user-name">WhatsApp Account</h3>
+                            <p class="user-phone">Unknown Number</p>
+                        </div>
+                        <button class="btn btn-danger btn-logout" onclick="logoutSession('cleanox')">
+                            <i class="fa-solid fa-right-from-bracket"></i> Disconnect Session
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-footer border-t hidden" id="test-form-cleanox">
+                    <h3>Send Test Message</h3>
+                    <form onsubmit="handleSend(event, 'cleanox')" class="test-send-form">
+                        <div class="form-group">
+                            <label for="to-cleanox">Recipient Number (with country code):</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-phone"></i>
+                                <input type="text" id="to-cleanox" placeholder="628xxxxxxxxxx" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="msg-cleanox">Message Content:</label>
+                            <textarea id="msg-cleanox" rows="2" placeholder="Tulis pesan uji coba di sini..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success w-full btn-send">
+                            <i class="fa-solid fa-paper-plane"></i> Send Message
+                        </button>
+                        <div class="send-feedback hidden"></div>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        <!-- API DOCUMENTATION SECTION -->
+        <section class="docs-section">
+            <div class="docs-header">
+                <i class="fa-solid fa-code"></i>
+                <h2>Developer API Reference</h2>
+            </div>
+            <div class="docs-body">
+                <p>Integrate this Gateway API with external systems (such as Odoo, ERP, Python scripts, or CRMs) to trigger automated messaging.</p>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method post">POST</span>
+                        <code class="endpoint-path">/api/send-message</code>
+                    </div>
+                    <p class="endpoint-desc">Universal send message route.</p>
+                    <pre><code>{
+  "session": "alora", // "alora" or "cleanox"
+  "to": "628123456789",
+  "message": "Hello, this is an automated message."
+}</code></pre>
+                </div>
+
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method post">POST</span>
+                        <code class="endpoint-path">/api/sessions/:id/send</code>
+                    </div>
+                    <p class="endpoint-desc">Direct send message route for a specific session.</p>
+                    <pre><code>// URL: http://localhost:3000/api/sessions/cleanox/send
+{
+  "to": "628123456789",
+  "message": "Hello from Cleanox Business!"
+}</code></pre>
+                </div>
+
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <code class="endpoint-path">/api/sessions</code>
+                    </div>
+                    <p class="endpoint-desc">Retrieve connection state for all sessions.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 PT Waschen Alora Indonesia. All Rights Reserved. Powered by Baileys Multi-Session Gateway.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
